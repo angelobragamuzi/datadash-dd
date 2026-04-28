@@ -18,35 +18,91 @@ class HomeShellPage extends StatefulWidget {
 
 class _HomeShellPageState extends State<HomeShellPage> {
   int _index = 0;
+  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
+  final GlobalKey<DashboardListPageState> _dashboardListPageKey =
+      GlobalKey<DashboardListPageState>();
+  final GlobalKey<ImportedFilesPageState> _importedFilesPageKey =
+      GlobalKey<ImportedFilesPageState>();
+  final GlobalKey<SettingsPageState> _settingsPageKey =
+      GlobalKey<SettingsPageState>();
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<AppController>();
+    final isDarkTheme = controller.themeMode == ThemeMode.dark;
+
     final pages = [
       HomePage(
+        key: _homePageKey,
         onImportTap: _openImport,
         onNewDashboardTap: _createDashboard,
         onFilesTap: () => setState(() => _index = 2),
         onExportsTap: _openExportPicker,
         onOpenStaticExample: _openStaticExample,
         onOpenDashboard: _openEditor,
+        onOpenDashboards: () => setState(() => _index = 1),
       ),
       DashboardListPage(
+        key: _dashboardListPageKey,
         onOpenEditor: _openEditor,
         onOpenView: _openView,
         onOpenExport: _openExport,
         onCreate: _createDashboard,
       ),
-      ImportedFilesPage(onImport: _openImport, onOpenPreview: _openPreview),
-      const SettingsPage(),
+      ImportedFilesPage(
+        key: _importedFilesPageKey,
+        onImport: _openImport,
+        onOpenPreview: _openPreview,
+      ),
+      SettingsPage(key: _settingsPageKey),
     ];
 
     const titles = ['Início', 'Dashboards', 'Arquivos', 'Configurações'];
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: _index == 0 ? 84 : kToolbarHeight,
         title: _index == 0
-            ? const DataDashLogo(size: 42, withGlow: false)
+            ? const DataDashLogo(size: 56, withGlow: true)
             : Text(titles[_index]),
+        actions: [
+          if (_index <= 3)
+            IconButton(
+              tooltip: 'Iniciar tutorial',
+              onPressed: () {
+                switch (_index) {
+                  case 0:
+                    _homePageKey.currentState?.startTutorial(force: true);
+                    break;
+                  case 1:
+                    _dashboardListPageKey.currentState?.startTutorial(
+                      force: true,
+                    );
+                    break;
+                  case 2:
+                    _importedFilesPageKey.currentState?.startTutorial(
+                      force: true,
+                    );
+                    break;
+                  case 3:
+                    _settingsPageKey.currentState?.startTutorial(force: true);
+                    break;
+                }
+              },
+              icon: const Icon(Icons.help_outline_rounded),
+            ),
+          IconButton(
+            tooltip: isDarkTheme ? 'Ativar tema claro' : 'Ativar tema escuro',
+            onPressed: () {
+              controller.setThemeMode(
+                isDarkTheme ? ThemeMode.light : ThemeMode.dark,
+              );
+            },
+            icon: Icon(
+              isDarkTheme ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            ),
+          ),
+        ],
       ),
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: NavigationBar(

@@ -2,13 +2,17 @@ import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/app_controller.dart';
 import '../../../core/utils/app_illustrations.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/utils/page_tutorial_mixin.dart';
+import '../../../core/utils/tutorial_ids.dart';
 import '../../../data/models/dashboard_widget_model.dart';
 import '../../../data/models/data_filter_model.dart';
+import '../../../shared/widgets/app_page_background.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/section_panel.dart';
 
@@ -21,7 +25,13 @@ class WidgetConfigPage extends StatefulWidget {
   State<WidgetConfigPage> createState() => _WidgetConfigPageState();
 }
 
-class _WidgetConfigPageState extends State<WidgetConfigPage> {
+class _WidgetConfigPageState extends State<WidgetConfigPage>
+    with PageTutorialMixin<WidgetConfigPage> {
+  final GlobalKey<State<StatefulWidget>> _titleShowcaseKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _typeShowcaseKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _filterShowcaseKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _saveShowcaseKey = GlobalKey();
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _filterValueController = TextEditingController();
   final Uuid _uuid = const Uuid();
@@ -35,6 +45,17 @@ class _WidgetConfigPageState extends State<WidgetConfigPage> {
   FilterOperator _filterOperator = FilterOperator.contains;
 
   DashboardWidgetModel? _editingWidget;
+
+  @override
+  String get tutorialId => TutorialIds.widgetConfig;
+
+  @override
+  List<GlobalKey<State<StatefulWidget>>> get tutorialKeys => [
+    _titleShowcaseKey,
+    _typeShowcaseKey,
+    _filterShowcaseKey,
+    _saveShowcaseKey,
+  ];
 
   @override
   void initState() {
@@ -131,117 +152,90 @@ class _WidgetConfigPageState extends State<WidgetConfigPage> {
         });
       });
     }
+    maybeStartTutorialOnFirstView();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_editingWidget == null ? 'Novo widget' : 'Editar widget'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
-        children: [
-          SectionPanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título do widget',
-                    hintText: 'Ex.: Receita total',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Tipo de visualização',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Escolha o formato mais claro para mostrar seu dado.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 10),
-                LayoutBuilder(
-                  builder: (_, constraints) {
-                    final cardWidth = (constraints.maxWidth - 10) / 2;
-                    return Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: DashboardWidgetType.values.map((type) {
-                        return SizedBox(
-                          width: cardWidth,
-                          child: _WidgetTypeCard(
-                            type: type,
-                            label: _typeLabel(type),
-                            description: _typeDescription(type),
-                            selected: _widgetType == type,
-                            onTap: () => setState(() => _widgetType = type),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: safeColumnKey,
-                  decoration: const InputDecoration(
-                    labelText: 'Qual dado você quer analisar?',
-                  ),
-                  items: [
-                    for (final column in visibleColumns)
-                      DropdownMenuItem(
-                        value: column.key,
-                        child: Text(column.label),
-                      ),
-                  ],
-                  onChanged: (value) => setState(() => _columnKey = value),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Como resumir esse dado?',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: AggregationType.values.map((type) {
-                    return ChoiceChip(
-                      label: Text(_aggregationLabel(type)),
-                      selected: _aggregation == type,
-                      onSelected: (_) => setState(() => _aggregation = type),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _aggregationDescription(_aggregation),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
+        actions: [
+          IconButton(
+            tooltip: 'Iniciar tutorial',
+            onPressed: () => startTutorial(force: true),
+            icon: const Icon(Icons.help_outline_rounded),
           ),
-          const SizedBox(height: 12),
-          SectionPanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  value: _filterEnabled,
-                  onChanged: (value) => setState(() => _filterEnabled = value),
-                  title: const Text('Aplicar filtro neste widget'),
-                  subtitle: const Text(
-                    'Opcional. Use quando quiser mostrar apenas um recorte.',
+        ],
+      ),
+      body: AppPageBackground(
+        padding: EdgeInsets.zero,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+          children: [
+            SectionPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Showcase(
+                    key: _titleShowcaseKey,
+                    title: 'Nome do widget',
+                    description:
+                        'Defina um título claro para identificar rapidamente o indicador.',
+                    tooltipPosition: TooltipPosition.bottom,
+                    child: TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Título do widget',
+                        hintText: 'Ex.: Receita total',
+                      ),
+                    ),
                   ),
-                ),
-                if (_filterEnabled) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Tipo de visualização',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Escolha o formato mais claro para mostrar seu dado.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 10),
+                  Showcase(
+                    key: _typeShowcaseKey,
+                    title: 'Tipo de visualização',
+                    description:
+                        'Escolha entre indicador, gráficos ou tabela para representar melhor seu dado.',
+                    tooltipPosition: TooltipPosition.bottom,
+                    child: LayoutBuilder(
+                      builder: (_, constraints) {
+                        final compact = constraints.maxWidth < 520;
+                        final cardWidth = compact
+                            ? constraints.maxWidth
+                            : (constraints.maxWidth - 10) / 2;
+
+                        return Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: DashboardWidgetType.values.map((type) {
+                            return SizedBox(
+                              width: cardWidth,
+                              child: _WidgetTypeCard(
+                                type: type,
+                                label: _typeLabel(type),
+                                description: _typeDescription(type),
+                                selected: _widgetType == type,
+                                onTap: () => setState(() => _widgetType = type),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    initialValue: safeFilterColumn,
+                    initialValue: safeColumnKey,
                     decoration: const InputDecoration(
-                      labelText: 'Campo do filtro',
+                      labelText: 'Qual dado você quer analisar?',
                     ),
                     items: [
                       for (final column in visibleColumns)
@@ -250,44 +244,118 @@ class _WidgetConfigPageState extends State<WidgetConfigPage> {
                           child: Text(column.label),
                         ),
                     ],
-                    onChanged: (value) => setState(() => _filterColumn = value),
+                    onChanged: (value) => setState(() => _columnKey = value),
                   ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<FilterOperator>(
-                    initialValue: _filterOperator,
-                    decoration: const InputDecoration(labelText: 'Condição'),
-                    items: FilterOperator.values
-                        .map(
-                          (operator) => DropdownMenuItem(
-                            value: operator,
-                            child: Text(_operatorLabel(operator)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _filterOperator = value);
-                    },
+                  const SizedBox(height: 12),
+                  Text(
+                    'Como resumir esse dado?',
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _filterValueController,
-                    decoration: const InputDecoration(
-                      labelText: 'Valor do filtro',
-                      hintText: 'Ex.: Sul, 2026 ou 1000',
-                    ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: AggregationType.values.map((type) {
+                      return ChoiceChip(
+                        label: Text(_aggregationLabel(type)),
+                        selected: _aggregation == type,
+                        onSelected: (_) => setState(() => _aggregation = type),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _aggregationDescription(_aggregation),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Showcase(
+              key: _filterShowcaseKey,
+              title: 'Filtro do widget',
+              description:
+                  'Opcional: aplique um recorte para este widget mostrar apenas parte dos dados.',
+              tooltipPosition: TooltipPosition.top,
+              child: SectionPanel(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      value: _filterEnabled,
+                      onChanged: (value) =>
+                          setState(() => _filterEnabled = value),
+                      title: const Text('Aplicar filtro neste widget'),
+                      subtitle: const Text(
+                        'Opcional. Use quando quiser mostrar apenas um recorte.',
+                      ),
+                    ),
+                    if (_filterEnabled) ...[
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: safeFilterColumn,
+                        decoration: const InputDecoration(
+                          labelText: 'Campo do filtro',
+                        ),
+                        items: [
+                          for (final column in visibleColumns)
+                            DropdownMenuItem(
+                              value: column.key,
+                              child: Text(column.label),
+                            ),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => _filterColumn = value),
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<FilterOperator>(
+                        initialValue: _filterOperator,
+                        decoration: const InputDecoration(
+                          labelText: 'Condição',
+                        ),
+                        items: FilterOperator.values
+                            .map(
+                              (operator) => DropdownMenuItem(
+                                value: operator,
+                                child: Text(_operatorLabel(operator)),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() => _filterOperator = value);
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _filterValueController,
+                        decoration: const InputDecoration(
+                          labelText: 'Valor do filtro',
+                          hintText: 'Ex.: Sul, 2026 ou 1000',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        child: ElevatedButton(
-          onPressed: _save,
-          child: const Text('Salvar widget'),
+        child: Showcase(
+          key: _saveShowcaseKey,
+          title: 'Salvar widget',
+          description:
+              'Conclua a configuração para adicionar ou atualizar o widget no dashboard.',
+          tooltipPosition: TooltipPosition.top,
+          child: ElevatedButton(
+            onPressed: _save,
+            child: const Text('Salvar widget'),
+          ),
         ),
       ),
     );

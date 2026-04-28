@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/dashboard_widget_model.dart';
 import '../../data/models/data_filter_model.dart';
@@ -31,6 +30,7 @@ class DashboardWidgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final content = _buildByType(context);
 
     return SectionPanel(
@@ -46,7 +46,9 @@ class DashboardWidgetCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     widgetModel.title,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -55,7 +57,11 @@ class DashboardWidgetCard extends StatelessWidget {
                   IconButton(
                     visualDensity: VisualDensity.compact,
                     onPressed: onDelete,
-                    icon: const Icon(Icons.close, size: 18),
+                    icon: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: scheme.onSurface.withValues(alpha: 0.72),
+                    ),
                   ),
               ],
             ),
@@ -68,6 +74,9 @@ class DashboardWidgetCard extends StatelessWidget {
   }
 
   Widget _buildByType(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final mutedColor = Theme.of(context).textTheme.bodySmall?.color;
+
     switch (widgetModel.type) {
       case DashboardWidgetType.indicator:
         final value = metricsService.indicatorValue(
@@ -81,7 +90,7 @@ class DashboardWidgetCard extends StatelessWidget {
             Formatters.number(value),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: scheme.primary,
             ),
           ),
         );
@@ -123,10 +132,7 @@ class DashboardWidgetCard extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           points[index].label,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.mutedText,
-                          ),
+                          style: TextStyle(fontSize: 10, color: mutedColor),
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
@@ -142,7 +148,7 @@ class DashboardWidgetCard extends StatelessWidget {
                       BarChartRodData(
                         toY: points[i].value,
                         width: 14,
-                        color: AppColors.primary,
+                        color: scheme.primary,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ],
@@ -170,8 +176,10 @@ class DashboardWidgetCard extends StatelessWidget {
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: null,
-                getDrawingHorizontalLine: (value) =>
-                    const FlLine(color: AppColors.border, strokeWidth: 0.8),
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: scheme.outlineVariant.withValues(alpha: 0.75),
+                  strokeWidth: 0.8,
+                ),
               ),
               borderData: FlBorderData(show: false),
               lineTouchData: LineTouchData(enabled: false),
@@ -180,13 +188,13 @@ class DashboardWidgetCard extends StatelessWidget {
                 LineChartBarData(
                   spots: spots,
                   isCurved: true,
-                  color: AppColors.accent,
+                  color: scheme.secondary,
                   barWidth: 3,
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: AppColors.accent.withValues(alpha: 0.12),
+                    color: scheme.secondary.withValues(alpha: 0.12),
                   ),
                 ),
               ],
@@ -202,11 +210,11 @@ class DashboardWidgetCard extends StatelessWidget {
         if (points.isEmpty) return const _NoData();
         final total = points.fold<double>(0, (acc, point) => acc + point.value);
         final colors = [
-          AppColors.primary,
-          AppColors.accent,
-          AppColors.primaryMuted,
-          AppColors.accentSoft,
-          AppColors.primarySoft,
+          scheme.primary,
+          scheme.secondary,
+          scheme.tertiary,
+          scheme.primaryContainer,
+          scheme.secondaryContainer,
         ];
 
         return SizedBox(
@@ -261,9 +269,9 @@ class DashboardWidgetCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 points[i].label,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  color: AppColors.mutedText,
+                                  color: mutedColor,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -330,10 +338,12 @@ class _NoData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final mutedColor = Theme.of(context).textTheme.bodySmall?.color;
+
+    return SizedBox(
       height: 90,
       child: Center(
-        child: Text('Sem dados', style: TextStyle(color: AppColors.mutedText)),
+        child: Text('Sem dados', style: TextStyle(color: mutedColor)),
       ),
     );
   }

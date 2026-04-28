@@ -41,9 +41,14 @@ class AppController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   ThemeMode themeMode = ThemeMode.light;
+  Set<String> _seenTutorials = <String>{};
 
   List<DataSetModel> imports = const [];
   List<DashboardModel> dashboards = const [];
+
+  bool hasSeenTutorial(String tutorialId) {
+    return _seenTutorials.contains(tutorialId);
+  }
 
   Future<void> bootstrap() async {
     isLoading = true;
@@ -51,6 +56,7 @@ class AppController extends ChangeNotifier {
 
     try {
       themeMode = _settingsRepository.getThemeMode();
+      _seenTutorials = _settingsRepository.getSeenTutorials();
       imports = _importRepository.getAll();
       dashboards = _dashboardRepository.getAll();
 
@@ -72,6 +78,15 @@ class AppController extends ChangeNotifier {
     themeMode = mode;
     notifyListeners();
     await _settingsRepository.saveThemeMode(mode);
+  }
+
+  Future<void> setTutorialSeen(String tutorialId) async {
+    final id = tutorialId.trim();
+    if (id.isEmpty || _seenTutorials.contains(id)) return;
+
+    _seenTutorials = {..._seenTutorials, id};
+    notifyListeners();
+    await _settingsRepository.saveSeenTutorials(_seenTutorials);
   }
 
   Future<DataSetModel> importFile() async {
