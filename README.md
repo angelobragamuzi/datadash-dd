@@ -191,7 +191,7 @@ Hive boxes used:
 - Centered illustration-based empty states
 - Clear visual feedback for critical actions
 
-## Suggested Roadmap
+## Future Features
 
 - Ready-to-use dashboard templates
 - More visualization types
