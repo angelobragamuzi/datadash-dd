@@ -1,120 +1,120 @@
 # DataDash
 
-DataDash é um aplicativo de analytics local-first desenvolvido em Flutter para importar dados tabulares, preparar a base, montar dashboards e exportar resultados em PDF.
+DataDash is a local-first analytics app built with Flutter to import tabular data, prepare datasets, build dashboards, and export results to PDF.
 
-## Visão geral
+## Overview
 
-O projeto foi pensado para uma experiência mobile-first, com foco em produtividade e operação offline:
+The project is designed for a mobile-first experience, focused on productivity and offline usage:
 
-- Importação de arquivos locais (`.csv`, `.xls`, `.xlsx`)
-- Tratamento e preparação de dados (renomear/ignorar colunas e filtros)
-- Criação de dashboards com widgets configuráveis
-- Visualização de indicadores e gráficos
-- Exportação para PDF e compartilhamento
-- Persistência local com Hive (sem backend)
+- Local file import (`.csv`, `.xls`, `.xlsx`)
+- Data preparation (rename/ignore columns and apply filters)
+- Dashboard creation with configurable widgets
+- Metric and chart visualization
+- PDF export and sharing
+- Local persistence with Hive (no backend required)
 
-## Galeria (prints do aplicativo)
+## Gallery (App Screenshots)
 
-> Prints capturados da versão Web local do app (`build/web`).
+> Screenshots captured from the local web build (`build/web`).
 
-| Início | Dashboards |
+| Home | Dashboards |
 |---|---|
-| ![Tela Inicial](docs/screenshots/01-home.png) | ![Dashboards](docs/screenshots/02-dashboards-empty.png) |
+| ![Home Screen](docs/screenshots/01-home.png) | ![Dashboards](docs/screenshots/02-dashboards-empty.png) |
 
-| Editor de Dashboard | Configuração de Widget |
+| Dashboard Editor | Widget Configuration |
 |---|---|
-| ![Editor](docs/screenshots/04-dashboard-editor.png) | ![Configuração de Widget](docs/screenshots/05-widget-config.png) |
+| ![Editor](docs/screenshots/04-dashboard-editor.png) | ![Widget Configuration](docs/screenshots/05-widget-config.png) |
 
-| Arquivos Importados | Prévia de Dados |
+| Imported Files | Data Preview |
 |---|---|
-| ![Arquivos](docs/screenshots/06-imported-files.png) | ![Prévia](docs/screenshots/07-data-preview.png) |
+| ![Imported Files](docs/screenshots/06-imported-files.png) | ![Data Preview](docs/screenshots/07-data-preview.png) |
 
-| Configurações |
+| Settings |
 |---|
-| ![Configurações](docs/screenshots/08-settings.png) |
+| ![Settings](docs/screenshots/08-settings.png) |
 
-## Funcionalidades
+## Features
 
-### 1. Shell do aplicativo
+### 1. App Shell
 
 - Splash screen
-- Navegação principal por `NavigationBar`
-- Áreas: `Início`, `Dashboards`, `Arquivos`, `Configurações`
-- Tema claro/escuro com persistência
+- Main navigation with `NavigationBar`
+- Main sections: `Home`, `Dashboards`, `Files`, `Settings`
+- Light/dark theme with persistence
 
-### 2. Importação de dados
+### 2. Data Import
 
-- Seleção de arquivo local com `file_picker`
-- Suporte a `CSV`, `XLS` e `XLSX`
-- Parsing e normalização em `DataProcessingService`
+- Local file selection via `file_picker`
+- Support for `CSV`, `XLS`, and `XLSX`
+- Parsing and normalization in `DataProcessingService`
 
-### 3. Preparação da base
+### 3. Data Preparation
 
-- Renomear colunas
-- Ignorar colunas não relevantes
-- Criar e remover filtros de dados
-- Prévia tabular antes de criar o dashboard
+- Rename columns
+- Ignore non-relevant columns
+- Create and remove dataset filters
+- Table preview before dashboard creation
 
-### 4. Dashboard builder
+### 4. Dashboard Builder
 
-- Criar/renomear/remover dashboards
-- Adicionar/editar/remover widgets
-- Reordenar widgets
-- Associação do dashboard com dataset
+- Create/rename/delete dashboards
+- Add/edit/remove widgets
+- Reorder widgets
+- Link dashboards to datasets
 
-### 5. Widgets e visualizações
+### 5. Widgets and Visualizations
 
-Tipos disponíveis:
+Available widget types:
 
-- Indicador numérico
-- Gráfico de barras
-- Gráfico de linhas
-- Gráfico de pizza
-- Tabela resumida
+- Numeric indicator
+- Bar chart
+- Line chart
+- Pie chart
+- Summary table
 
-### 6. Visualização e exportação
+### 6. View and Export
 
-- Tela de visualização com filtros globais
-- Exportação para PDF
-- Impressão/preview
-- Compartilhamento via apps do sistema
+- Dashboard view with global filters
+- PDF export
+- Print/preview flow
+- Share through system apps
 
-### 7. Tutorial guiado
+### 7. Guided Tutorial
 
-- Onboarding com `showcaseview`
-- Tutoriais distribuídos nas principais páginas
-- Registro de progresso por usuário (persistido localmente)
+- Onboarding with `showcaseview`
+- Tutorials across the main pages
+- Per-user tutorial progress persisted locally
 
-## Stack técnica
+## Tech Stack
 
 - **Framework:** Flutter (Material 3)
-- **Linguagem:** Dart
-- **Estado:** Provider (`ChangeNotifier` via `AppController`)
-- **Persistência local:** Hive
-- **Gráficos:** fl_chart
-- **Importação:** file_picker, csv, excel
-- **Exportação:** pdf, printing, share_plus
+- **Language:** Dart
+- **State Management:** Provider (`ChangeNotifier` via `AppController`)
+- **Local Persistence:** Hive
+- **Charts:** fl_chart
+- **Import:** file_picker, csv, excel
+- **Export:** pdf, printing, share_plus
 - **UI/Assets:** flutter_svg, google_fonts
 
-## Arquitetura
+## Architecture
 
-Estrutura em camadas com organização por feature:
+Layered structure with feature-based organization:
 
-- `lib/core/`: app controller, tema, rotas, utilitários
-- `lib/data/`: models, services e repositories
-- `lib/features/`: páginas por domínio funcional
-- `lib/shared/`: componentes reutilizáveis de UI
+- `lib/core/`: app controller, theme, routes, utilities
+- `lib/data/`: models, services, repositories
+- `lib/features/`: pages grouped by feature domain
+- `lib/shared/`: reusable UI components
 
-### Fluxo resumido
+### Core User Flow
 
-1. Usuário importa arquivo
-2. Ajusta colunas e filtros na prévia
-3. Cria dashboard
-4. Configura widgets
-5. Visualiza resultados
-6. Exporta/compartilha PDF
+1. User imports a file
+2. User adjusts columns and filters in preview
+3. User creates a dashboard
+4. User configures widgets
+5. User reviews results
+6. User exports/shares PDF
 
-## Estrutura de pastas
+## Project Structure
 
 ```text
 lib/
@@ -130,35 +130,35 @@ docs/
   screenshots/
 ```
 
-## Como executar
+## Getting Started
 
-### Pré-requisitos
+### Prerequisites
 
-- Flutter SDK instalado
-- Dart SDK compatível com o projeto
-- Chrome, Android Emulator ou dispositivo físico
+- Flutter SDK installed
+- Dart SDK compatible with the project
+- Chrome, Android Emulator, or physical device
 
-### Instalação
+### Installation
 
 ```bash
-git clone <url-do-repositorio>
+git clone <your-repository-url>
 cd datadash
 flutter pub get
 ```
 
-### Rodar em desenvolvimento
+### Run in Development
 
 ```bash
 flutter run
 ```
 
-### Rodar no Chrome
+### Run in Chrome
 
 ```bash
 flutter run -d chrome
 ```
 
-### Análise estática
+### Static Analysis
 
 ```bash
 flutter analyze
@@ -176,29 +176,29 @@ flutter build web
 flutter build apk --release
 ```
 
-## Persistência local
+## Local Persistence
 
-Boxes Hive utilizadas:
+Hive boxes used:
 
 - `imports_box`
 - `dashboards_box`
 - `settings_box`
 
-## Qualidade e UX
+## Quality and UX
 
-- Interface responsiva para diferentes larguras
-- Suporte a tema claro/escuro
-- Estados vazios com ilustrações centralizadas
-- Feedback visual para ações críticas
+- Responsive UI for different screen widths
+- Light/dark theme support
+- Centered illustration-based empty states
+- Clear visual feedback for critical actions
 
-## Roadmap sugerido
+## Suggested Roadmap
 
-- Templates prontos de dashboard
-- Mais tipos de visualização
-- Exportação para PNG/JPG
-- Busca e filtros avançados na lista de dashboards
-- Internacionalização (i18n)
+- Ready-to-use dashboard templates
+- More visualization types
+- PNG/JPG export
+- Advanced search and filters in dashboard listing
+- Internationalization (i18n)
 
-## Licença
+## License
 
-Defina a licença do projeto (ex.: MIT) neste repositório.
+Define the project license in this repository (for example, MIT).
